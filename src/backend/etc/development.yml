@@ -1,0 +1,6 @@
+mongo:
+  host: 35.228.189.190
+  port: 27017
+  db: aisauna
+  user: dev
+  password: junction

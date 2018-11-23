@@ -3,6 +3,7 @@ import uvloop
 import yaml
 from aiohttp import web
 import logging
+import motor.motor_asyncio
 
 from .handlers import handler
 
@@ -27,6 +28,22 @@ def read_config(config_path: str):
     return raw_config
 
 
+def setup_db(app):
+    mongo_settings = app["config"]["mongo"]
+
+    host = mongo_settings["host"]
+    port = mongo_settings["port"]
+    db_name = mongo_settings["db"]
+    user = mongo_settings["user"]
+    password = mongo_settings["password"]
+
+    uri = f"mongodb://{user}:{password}@{host}:{port}/{db_name}"
+
+    client = motor.motor_asyncio.AsyncIOMotorClient(uri)
+    db = client[db_name]
+    app["db"] = db
+
+
 def setup_routes(app: web.Application) -> None:
     app.router.add_get("/hello", handler)
 
@@ -38,6 +55,7 @@ async def create_app(config_path: str) -> web.Application:
 
     app["config"] = read_config(config_path)
 
+    setup_db(app)
     setup_routes(app)
 
     return app

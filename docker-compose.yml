@@ -1,18 +1,8 @@
 version: "3"
 
 services:
-  mongo:
-    image: mongo:latest
-    restart: always
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: example
-      MONGO_INITDB_DATABASE: aisauna
-    volumes:
-      - ./data:/data/db
-
   aiohttp:
-    build: src/backend
+    build: ./src/backend
     command: supervisord -c /app/etc/supervisord.ini
 #    command: aisauna --config /app/etc/development.yml --port=8080
 #    ports:
@@ -25,8 +15,6 @@ services:
     volumes:
      - aiohttp-sockets:/var/lib/aiohttp
     restart: always
-    depends_on:
-      - mongo
 
 
   nginx:
