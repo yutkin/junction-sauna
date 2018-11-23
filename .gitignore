@@ -116,3 +116,5 @@ dmypy.json
 venv
 .idea
 data
+fullchain.pem
+privkey.pem
