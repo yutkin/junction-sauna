@@ -1,0 +1,10 @@
+aiodns==1.1.1
+aiohttp==3.4.4
+black==18.9b0
+cchardet==2.1.4
+Click==7.0
+PyYAML==3.13
+ujson==1.35
+cython==0.29
+raven==6.9.0
+raven-aiohttp==0.7.0

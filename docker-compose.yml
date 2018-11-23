@@ -1,0 +1,37 @@
+version: "3"
+
+services:
+  aiohttp:
+    build: src/backend
+    command: supervisord -c /app/etc/supervisord.ini
+#    command: aisauna --config /app/etc/development.yml --port=8080
+#    ports:
+#      - 8080:8080
+    tty: true
+    networks:
+     - front
+    environment:
+     - PYTHONASYNCIODEBUG=0
+    volumes:
+     - aiohttp-sockets:/var/lib/aiohttp
+
+
+  nginx:
+    image: nginx:latest
+    ports:
+     - 80:80
+    environment:
+     - TZ=Europe/Moscow
+    networks:
+     - front
+    volumes:
+     - ./src/backend/etc/nginx.conf:/etc/nginx/nginx.conf
+     - aiohttp-sockets:/var/lib/aiohttp
+    depends_on:
+     - aiohttp
+
+networks:
+  front:
+
+volumes:
+  aiohttp-sockets:
