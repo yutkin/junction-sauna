@@ -1,3 +1,6 @@
+app:
+  book_timeslot: 30  # in minutes
+
 mongo:
   host: 35.228.189.190
   port: 27017

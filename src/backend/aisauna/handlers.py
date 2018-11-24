@@ -2,7 +2,7 @@ import logging
 from datetime import datetime
 
 from aiohttp import web
-from .utils import json_dumps_datetime
+from .utils import json_dumps_datetime, generate_timetable
 
 logger = logging.getLogger(__name__)
 
@@ -14,8 +14,14 @@ async def book_sauna(request):
     req_from = datetime.strptime(data["from"], '%Y-%m-%d %H:%M:%S')
     req_to = datetime.strptime(data["to"], '%Y-%m-%d %H:%M:%S')
     now = datetime.now().replace(second=0, microsecond=0)
+    timeslot = request.app["config"]["app"]["book_timeslot"]
 
-    if req_from >= req_to or req_from < now:
+    if (
+        req_from >= req_to or
+        req_from < now or
+        req_from.minute % timeslot != 0 or
+        req_to.minute % timeslot != 0
+    ):
         return web.Response(status=400)
 
     search_filter = {
@@ -32,7 +38,6 @@ async def book_sauna(request):
     }
 
     booked_already = []
-
     db = request.app["db"]
 
     async for doc in db.bookings.find(search_filter, {'_id': False}):
@@ -59,15 +64,22 @@ async def get_timetable(request):
 
     now = datetime.now().replace(second=0, microsecond=0)
     search_filter = {"from": {"$gte": now}}
-    timetable = []
 
-    async for doc in db.bookings.find(search_filter, {'_id': False}).sort('from'):
-        timetable.append(doc)
+    timetable = dict()
+    async for booking in db.bookings.find(search_filter, {'_id': False}).sort('from'):
+        timetable[(booking["from"], booking["to"])] = booking
+
+    timeslot = request.app["config"]["app"]["book_timeslot"]
+
+    for dt_from, dt_to in generate_timetable(timeslot):
+        slot = (dt_from, dt_to)
+        if slot not in timetable:
+            timetable[slot] = {"from": dt_from, "to": dt_to}
 
     return web.json_response(
-        {"timetable": timetable},
+        {"timetable": sorted(timetable.values(), key=lambda x: x["from"])},
+        dumps=json_dumps_datetime,
         status=200,
-        dumps=json_dumps_datetime
     )
 
 
