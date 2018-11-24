@@ -1,12 +1,59 @@
 import React from 'react';
 import { StyleSheet, Image, Text, View } from 'react-native';
-// import { WebBrowser } from 'expo';
-// import { Ionicons } from '@expo/vector-icons';
-import Touchable from 'react-native-platform-touchable';
+import moment from 'moment';
 import Button from '../components/Button';
+import * as api from '../api';
 
 export default class SaunaView extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      booking: null
+    }
+  }
+
+  componentDidMount() {
+    this.fetchData();
+  }
+
+  componentDidUpdate() {
+    const {navigation} = this.props;
+    if (navigation.state.params.refresh) {
+      this.fetchData();
+    }
+  }
+
+  async fetchData() {
+    try {
+      const booking = await api.getLatestBooking();
+      if (booking.errors) {
+        return;
+      }
+      this.setState({booking: booking.booking});
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  async cancelBooking() {
+    try {
+      await api.cancelBooking();
+      this.setState({booking: null});
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
   render() {
+    let bookingFrom;
+    let bookingTo;
+
+    if (this.state.booking) {
+      bookingFrom = moment(this.state.booking.from);
+      bookingTo = moment(this.state.booking.to);
+    }
+
     return (
       <View style={styles.container}>
         <View style={styles.imageContainer}>
@@ -38,87 +85,31 @@ export default class SaunaView extends React.Component {
           </View>
         </View>
 
-        <Button
-          text="Book sauna"
-          style={styles.btn}
-          onPress={() => this.props.navigation.navigate('BookSauna')}
-        />
+        {!Boolean(this.state.booking) && (
+          <Button
+            text="Book sauna"
+            style={styles.btn}
+            onPress={() => this.props.navigation.navigate('BookSauna')}
+          />
+        )}
 
-        {/* <Text style={styles.optionsTitleText}>
-          Resources
-        </Text>
-
-        <Touchable
-          style={styles.option}
-          background={Touchable.Ripple('#ccc', false)}
-          onPress={this._handlePressDocs}>
-          <View style={{ flexDirection: 'row' }}>
-            <View style={styles.optionIconContainer}>
-              <Image
-                source={require('./assets/images/expo-icon.png')}
-                resizeMode="contain"
-                fadeDuration={0}
-                style={{ width: 20, height: 20, marginTop: 1 }}
-              />
-            </View>
-            <View style={styles.optionTextContainer}>
-              <Text style={styles.optionText}>
-                Read the Expo documentation
+        {Boolean(this.state.booking) && (
+          <React.Fragment>
+            <View style={{flex: 1, justifyContent: 'center', marginTop: 25}}>
+              <Text style={{color: '#696969', fontSize: 14}}>
+                You have booking from {bookingFrom.format('hh:mm')} to {bookingTo.format('hh:mm')}
               </Text>
             </View>
-          </View>
-        </Touchable>
-
-        <Touchable
-          background={Touchable.Ripple('#ccc', false)}
-          style={styles.option}
-          onPress={this._handlePressSlack}>
-          <View style={{ flexDirection: 'row' }}>
-            <View style={styles.optionIconContainer}>
-              <Image
-                source={require('./assets/images/slack-icon.png')}
-                fadeDuration={0}
-                style={{ width: 20, height: 20 }}
-              />
-            </View>
-            <View style={styles.optionTextContainer}>
-              <Text style={styles.optionText}>
-                Join us on Slack
-              </Text>
-            </View>
-          </View>
-        </Touchable>
-
-        <Touchable
-          style={styles.option}
-          background={Touchable.Ripple('#ccc', false)}
-          onPress={this._handlePressForums}>
-          <View style={{ flexDirection: 'row' }}>
-            <View style={styles.optionIconContainer}>
-              <Ionicons name="ios-chatboxes" size={22} color="#ccc" />
-            </View>
-            <View style={styles.optionTextContainer}>
-              <Text style={styles.optionText}>
-                Ask a question on the Expo forums
-              </Text>
-            </View>
-          </View>
-        </Touchable> */}
+            <Button
+              text="Cancel booking"
+              style={styles.btn}
+              onPress={() => this.cancelBooking()}
+            />
+          </React.Fragment>
+        )}
       </View>
     );
   }
-
-//   _handlePressSlack = () => {
-//     WebBrowser.openBrowserAsync('https://slack.expo.io');
-//   };
-
-//   _handlePressDocs = () => {
-//     WebBrowser.openBrowserAsync('http://docs.expo.io');
-//   };
-
-//   _handlePressForums = () => {
-//     WebBrowser.openBrowserAsync('http://forums.expo.io');
-//   };
 }
 
 const styles = StyleSheet.create({
@@ -131,7 +122,7 @@ const styles = StyleSheet.create({
     paddingRight: 20
   },
   btn: {
-    marginTop: 35
+    marginTop: 25
   },
   imageContainer: {
     width: '100%',

@@ -1,33 +1,92 @@
 import React from 'react';
-import { StyleSheet, Image, Text, View, Switch, DatePickerIOS } from 'react-native';
+import { StyleSheet, Image, Text, View, Switch, DatePickerIOS, AlertIOS } from 'react-native';
 import TableView from 'react-native-tableview';
 import DatePicker from 'react-native-datepicker';
+import moment from 'moment';
 
-const { Section, Item } = TableView
+import * as api from '../api';
 
 export default class BookSaunaView extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      timeFrom: new Date(),
-      timeTo: new Date(),
-      date: new Date()
+      timeFrom: null,
+      timeTo: null,
+      date: new Date(),
+      public: false
     }
+  }
+
+  componentDidMount() {
+    this.setState({minuteInterval: 15});
+  }
+
+  getDateFrom() {
+    const time = moment(this.state.timeFrom, 'hh:mm a');
+    return moment(this.state.date)
+      .hours(time.hours())
+      .minutes(time.minutes())
+      .seconds(0)
+      .format('Y-M-D hh:mm:ss');
+  }
+
+  getDateTo() {
+    const time = moment(this.state.timeTo, 'hh:mm a');
+    return moment(this.state.date)
+      .hours(time.hours())
+      .minutes(time.minutes())
+      .seconds(0)
+      .format('Y-M-D hh:mm:ss');
+  }
+
+  async bookSauna() {
+    if (!this.state.timeFrom || !this.state.timeTo) {
+      alert('Please select time first');
+      return;
+    }
+
+    await api.book(
+      this.getDateFrom(),
+      this.getDateTo()
+    );
+
+    alert('You have booked this sauna.');
+
+    this.props.navigation.navigate('Sauna', {refresh: true});
   }
 
   render() {
     return (
-      <View>
+      <View style={styles.container}>
         <TableView
-          style={{ width: '100%', height: 500 }}
-          // allowsToggle
-          // allowsMultipleSelection
+          style={{ width: '100%', flex: 1 }}
           tableViewStyle={TableView.Consts.Style.Grouped}
           tableViewCellStyle={TableView.Consts.CellStyle.Value1}
-          // onPress={event => console.log(event)}
         >
-          <Section>
+          <TableView.Section>
+            <TableView.Cell
+              style={{
+                height: 170,
+                paddingHorizontal: 16
+              }}
+            >
+              <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center'}}>
+                <Text style={{fontSize: 26, textAlign: 'center'}}>Sauna in our house</Text>
+                <Text style={{fontSize: 18, color: '#303030', textAlign: 'center', marginTop: 10}}>Yörlikkurli, 26</Text>
+              </View>
+            </TableView.Cell>
+          </TableView.Section>
+
+          <TableView.Section label="Timetable">
+            <TableView.Item
+              detail="19:00 — 19:45"
+              onPress={() => AlertIOS.alert('Request recorded', 'The sauna is booked by Tom of Finland. You will receive notification if he accepts your request.')}
+            >Tom of Finland (Public)</TableView.Item>
+            <TableView.Item detail="20:00 — 20:30">Hazol Forward</TableView.Item>
+          </TableView.Section>
+
+          <TableView.Section>
             <TableView.Cell
               style={{
                 flexDirection: 'row',
@@ -45,17 +104,17 @@ export default class BookSaunaView extends React.Component {
                 style={{width: 250}}
                 date={this.state.date}
                 mode="date"
-                placeholder="select date"
-                format="LT"
+                placeholder="--:--"
+                format="ll"
                 confirmBtnText="Confirm"
                 cancelBtnText="Cancel"
                 customStyles={datePickerStyles}
                 onDateChange={(date) => {this.setState({date})}}
               />
             </TableView.Cell>
-          </Section>
+          </TableView.Section>
 
-          <Section label="Select time">
+          <TableView.Section label="Select time">
             <TableView.Cell
               style={{
                 // flexDirection: 'row',
@@ -74,12 +133,13 @@ export default class BookSaunaView extends React.Component {
                   style={{width: 250}}
                   date={this.state.timeFrom}
                   mode="time"
-                  placeholder="select date"
+                  placeholder="--:--"
                   format="LT"
                   confirmBtnText="Confirm"
                   cancelBtnText="Cancel"
                   customStyles={datePickerStyles}
                   onDateChange={(timeFrom) => {this.setState({timeFrom})}}
+                  minuteInterval={15}
                 />
               </View>
             </TableView.Cell>
@@ -101,17 +161,18 @@ export default class BookSaunaView extends React.Component {
                 style={{width: 250}}
                 date={this.state.timeTo}
                 mode="time"
-                placeholder="select date"
+                placeholder="--:--"
                 format="LT"
                 confirmBtnText="Confirm"
                 cancelBtnText="Cancel"
                 customStyles={datePickerStyles}
                 onDateChange={(timeTo) => {this.setState({timeTo})}}
+                minuteInterval={15}
               />
             </TableView.Cell>
-          </Section>
+          </TableView.Section>
 
-          <Section>
+          <TableView.Section>
             <TableView.Cell
               style={{
                 flexDirection: 'row',
@@ -121,16 +182,33 @@ export default class BookSaunaView extends React.Component {
                 alignItems: 'center'
               }}
             >
-              <Text style={[{fontSize: 18}, {backgroundColor: 'transparent', flex: 1}]}>
+              <Text style={[{fontSize: 18, backgroundColor: 'transparent', flex: 1}]}>
                 Let everyone join me
               </Text>
               <Switch
                 style={{marginRight: 16}}
-                // value={this.props.lowLightMode}
-                // onValueChange={this.handleSwitchChange}
+                value={this.state.public}
+                onValueChange={() => this.setState({public: !this.state.public})}
               />
             </TableView.Cell>
-          </Section>
+          </TableView.Section>
+
+          <TableView.Section>
+            <TableView.Cell
+              style={{
+                flexDirection: 'row',
+                height: 44,
+                paddingLeft: 16,
+                justifyContent: 'space-between',
+                alignItems: 'center'
+              }}
+              onPress={() => this.bookSauna()}
+            >
+              <Text style={{fontSize: 18, color: '#2f8fe2'}}>
+                Confirm booking
+              </Text>
+            </TableView.Cell>
+          </TableView.Section>
         </TableView>
       </View>
     );
@@ -159,14 +237,12 @@ const datePickerStyles = {
 
 const styles = StyleSheet.create({
   container: {
-    // flex: 1,
-    // flexDirection: 'column',
-    // justifyContent: 'flex-start',
-    // alignItems: 'center',
-    // paddingLeft: 20,
-    // paddingRight: 20
-    // flex: 1,
-    // justifyContent: 'center',
-    // alignItems: 'stretch', // This sets width of TableView to zero
-  }
+    flex: 1,
+    flexDirection: 'column',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+  },
+  btn: {
+
+  },
 });

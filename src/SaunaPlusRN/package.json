@@ -7,10 +7,12 @@
     "test": "jest"
   },
   "dependencies": {
+    "moment": "^2.22.2",
     "react": "16.6.1",
     "react-native": "0.57.5",
     "react-native-cli": "^2.0.1",
     "react-native-datepicker": "^1.7.2",
+    "react-native-device-info": "^0.24.3",
     "react-native-platform-touchable": "^1.1.1",
     "react-native-tableview": "^2.4.1",
     "react-navigation": "^2.18.2"

@@ -14,7 +14,7 @@ export default class BookSaunaScreen extends React.Component {
   render() {
     return (
       // <ScrollView style={styles.container}>
-        <BookSaunaView />
+        <BookSaunaView {...this.props} />
       // </ScrollView>
     );
   }
