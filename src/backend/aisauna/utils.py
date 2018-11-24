@@ -1,6 +1,15 @@
+import numpy as np
 import json
+import aiohttp
+import logging
+
 from datetime import datetime
 from datetime import timedelta
+
+
+VAISALA_API = "https://apigtw.vaisala.com/hackjunction2018/saunameasurements/latest"
+
+logger = logging.getLogger(__name__)
 
 
 def json_dumps_datetime(dict_):
@@ -30,3 +39,30 @@ def generate_timetable(timeslot_length):
         dt_to = start_dt
 
         yield (dt_from, dt_to)
+
+
+async def get_sensors_readings():
+    res = {"temperature": None, "humidity": None}
+
+    T, H = [], []
+
+    async with aiohttp.ClientSession() as sess:
+        params = {"SensorID": "Ceiling1", "limit": 10}
+        async with sess.get(VAISALA_API, params=params) as resp:
+            resp.raise_for_status()
+
+            data = await resp.json()
+            logger.debug(data[0])
+
+            for measure in data:
+                M = measure["Measurements"]
+                T.append(M["Temperature"]["value"])
+                H.append(M["Relative humidity"]["value"])
+
+    if T:
+        res["temperature"] = np.round(np.mean(T), 2)
+
+    if H:
+        res["humidity"] = np.round(np.mean(H), 2)
+
+    return res

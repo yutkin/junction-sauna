@@ -9,3 +9,4 @@ cython==0.29
 raven==6.9.0
 raven-aiohttp==0.7.0
 motor==2.0.0
+numpy

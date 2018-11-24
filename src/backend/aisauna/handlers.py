@@ -2,7 +2,7 @@ import logging
 from datetime import datetime
 
 from aiohttp import web
-from .utils import json_dumps_datetime, generate_timetable
+from .utils import json_dumps_datetime, generate_timetable, get_sensors_readings
 
 logger = logging.getLogger(__name__)
 
@@ -129,9 +129,10 @@ async def get_user_booking(request):
 
 
 async def sauna_conditions(request):
-    now = datetime.now()
-    sec = now.second
+    sensors_readings = await get_sensors_readings()
 
-    resp = {"conditions": "safe" if sec % 10 < 5 else "dangerous"}
+    T, H = sensors_readings["temperature"], sensors_readings["humidity"]
 
-    return web.json_response(resp, status=200)
+    sensors_readings["conditions"] = "safe" if T < 120 and H < 30 else "dangerous"
+
+    return web.json_response(sensors_readings, status=200)
