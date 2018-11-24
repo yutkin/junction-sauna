@@ -11,6 +11,7 @@ async def book_sauna(request):
     data = await request.json()
 
     user_id = data["user_id"]
+    allow_joins = data.get("allow_joins", False)
     req_from = datetime.strptime(data["from"], '%Y-%m-%d %H:%M:%S')
     req_to = datetime.strptime(data["to"], '%Y-%m-%d %H:%M:%S')
 
@@ -58,6 +59,7 @@ async def book_sauna(request):
         "user_id": user_id,
         "from": req_from,
         "to": req_to,
+        "allow_joins": allow_joins,
     })
 
     return web.Response(status=200)
