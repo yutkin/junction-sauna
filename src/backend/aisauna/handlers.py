@@ -131,8 +131,9 @@ async def get_user_booking(request):
 async def sauna_conditions(request):
     sensors_readings = await get_sensors_readings()
 
-    T, H = sensors_readings["temperature"], sensors_readings["humidity"]
-
-    sensors_readings["conditions"] = "safe" if T < 120 and H < 30 else "dangerous"
+    if sensors_readings["Temperature"] < 120 and sensors_readings["Relative humidity"]:
+        sensors_readings["conditions"] = "safe"
+    else:
+        sensors_readings["conditions"] = "dangerous"
 
     return web.json_response(sensors_readings, status=200)

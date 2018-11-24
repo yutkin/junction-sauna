@@ -2,6 +2,7 @@ import numpy as np
 import json
 import aiohttp
 import logging
+from collections import defaultdict
 
 from datetime import datetime
 from datetime import timedelta
@@ -42,9 +43,13 @@ def generate_timetable(timeslot_length):
 
 
 async def get_sensors_readings():
-    res = {"temperature": None, "humidity": None}
+    keys = (
+        "Relative humidity",
+        "Temperature",
+        "Enthalpy",
+    )
 
-    T, H = [], []
+    res = defaultdict(list)
 
     async with aiohttp.ClientSession() as sess:
         params = {"SensorID": "Ceiling1", "limit": 10}
@@ -55,14 +60,10 @@ async def get_sensors_readings():
             logger.debug(data[0])
 
             for measure in data:
-                M = measure["Measurements"]
-                T.append(M["Temperature"]["value"])
-                H.append(M["Relative humidity"]["value"])
+                for key in keys:
+                    res[key].append(measure["Measurements"][key]["value"])
 
-    if T:
-        res["temperature"] = np.round(np.mean(T), 2)
-
-    if H:
-        res["humidity"] = np.round(np.mean(H), 2)
+    for key in keys:
+        res[key] = np.round(np.mean(res[key]), 2) if res[key] else None
 
     return res
