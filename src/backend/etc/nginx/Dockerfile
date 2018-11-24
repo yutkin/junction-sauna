@@ -10,7 +10,7 @@ COPY fullchain.pem $CERT_PATH/fullchain.pem
 COPY privkey.pem $CERT_PATH/privkey.pem
 
 EXPOSE 80
-ENV TZ=Europe/Moscow
+ENV TZ Europe/Helsinki
 
 RUN chmod +rwxrwxrwx $CERT_PATH/fullchain.pem
 RUN chmod +rwxrwxrwx $CERT_PATH/privkey.pem
