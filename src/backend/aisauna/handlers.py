@@ -87,7 +87,22 @@ async def get_timetable(request):
     )
 
 
-async def get_nearest_booking(request):
+async def get_booked_slots(request):
+    db = request.app["db"]
+    now = datetime.now()
+
+    res = []
+    async for booking in db.bookings.find(
+            {"from": {"$gte": now}}, {'_id': False}
+    ).sort("from"):
+        res.append(booking)
+
+    return web.json_response(
+        {"booked_slots": res}, status=200, dumps=json_dumps_datetime
+    )
+
+
+async def get_user_booking(request):
     user_id = request.query.get("user_id")
 
     if user_id is None:
