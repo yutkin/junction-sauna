@@ -26,7 +26,7 @@ async def book_sauna(request):
     ):
         return web.json_response(
             {"errors": {"message": "Bad ranges"}},
-            status=400
+            status=400,
         )
 
     search_filter = {
@@ -62,7 +62,7 @@ async def book_sauna(request):
         "allow_joins": allow_joins,
     })
 
-    return web.Response(status=200)
+    return web.json_response({"result": "ok"}, status=200)
 
 
 async def cancel_booking(request):
@@ -71,7 +71,7 @@ async def cancel_booking(request):
 
     db = request.app["db"]
     await db.bookings.delete_many({"user_id": {"$eq": user_id}})
-    return web.Response(status=200)
+    return web.json_response({"result": "ok"}, status=200)
 
 
 async def get_timetable(request):
@@ -109,7 +109,7 @@ async def get_booked_slots(request):
         res.append(booking)
 
     return web.json_response(
-        {"booked_slots": res}, status=200, dumps=json_dumps_datetime
+        {"booked_slots": res}, status=200, dumps=json_dumps_datetime,
     )
 
 
@@ -117,7 +117,9 @@ async def get_user_booking(request):
     user_id = request.query.get("user_id")
 
     if user_id is None:
-        return web.Response(status=400)
+        return web.json_response(
+            {"errors": {"message": "User is not provided"}}, status=400
+        )
 
     db = request.app["db"]
     search_filter = {
