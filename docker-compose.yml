@@ -10,8 +10,6 @@ services:
     tty: true
     networks:
      - front
-    environment:
-     - PYTHONASYNCIODEBUG=0
     volumes:
      - aiohttp-sockets:/var/lib/aiohttp
     restart: always
