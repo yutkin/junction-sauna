@@ -1,9 +1,6 @@
 import React from 'react';
 import { ScrollView, StyleSheet, Switch, Text } from 'react-native';
-// import SaunaView from '../views/SaunaView';
-// import TableView from 'react-native-tableview';
-
-// console.log(TableView);
+import BookSaunaView from '../views/BookSaunaView';
 
 export default class BookSaunaScreen extends React.Component {
   static navigationOptions = {
@@ -16,31 +13,17 @@ export default class BookSaunaScreen extends React.Component {
 
   render() {
     return (
-      <ScrollView style={styles.container}>
-        {/* <SaunaView /> */}
-        {/* <TableView.Cell style={{
-  flexDirection: 'row',
-  height: 44,
-  paddingLeft: 16,
-  justifyContent: 'space-between',
-  alignItems: 'center'
-}}>
-          <Text style={[{}, {backgroundColor: 'transparent', flex: 1}]}>Enable Low Light Mode</Text>
-          <Switch
-            style={{marginRight: 16}}
-            // value={this.props.lowLightMode}
-            // onValueChange={this.handleSwitchChange}
-          />
-        </TableView.Cell> */}
-      </ScrollView>
+      // <ScrollView style={styles.container}>
+        <BookSaunaView />
+      // </ScrollView>
     );
   }
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    paddingTop: 15,
-    backgroundColor: '#fff',
+    // flex: 1,
+    // paddingTop: 15,
+    // backgroundColor: '#fff',
   },
 });
