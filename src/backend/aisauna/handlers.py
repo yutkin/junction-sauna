@@ -63,6 +63,15 @@ async def book_sauna(request):
     return web.Response(status=200)
 
 
+async def cancel_booking(request):
+    data = await request.json()
+    user_id = data.get("user_id", -1)
+
+    db = request.app["db"]
+    await db.bookings.delete_many({"user_id": {"$eq": user_id}})
+    return web.Response(status=200)
+
+
 async def get_timetable(request):
     db = request.app["db"]
 
@@ -111,7 +120,7 @@ async def get_user_booking(request):
     db = request.app["db"]
     search_filter = {
         "$and": [
-            {"user_id": {"$eq": int(user_id)}},
+            {"user_id": {"$eq": user_id}},
             {"from": {"$gte": datetime.now()}}
         ]
     }

@@ -6,7 +6,8 @@ import logging
 import motor.motor_asyncio
 
 from .handlers import (
-    get_timetable, get_user_booking, book_sauna, sauna_conditions, get_booked_slots
+    get_timetable, get_user_booking, book_sauna, sauna_conditions, get_booked_slots,
+    cancel_booking
 )
 
 
@@ -49,6 +50,7 @@ def setup_db(app):
 
 def setup_routes(app: web.Application) -> None:
     app.router.add_post("/api/book", book_sauna)
+    app.router.add_post("/api/cancel_booking", cancel_booking)
 
     app.router.add_get("/api/timetable", get_timetable)
     app.router.add_get("/api/conditions", sauna_conditions)
