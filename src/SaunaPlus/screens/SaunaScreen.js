@@ -14,7 +14,7 @@ export default class SaunaScreen extends React.Component {
   render() {
     return (
       <ScrollView style={styles.container}>
-        <SaunaView />
+        <SaunaView {...this.props} />
       </ScrollView>
     );
   }

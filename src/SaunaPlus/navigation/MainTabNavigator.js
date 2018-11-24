@@ -7,6 +7,7 @@ import HomeScreen from '../screens/HomeScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 
 import SaunaScreen from '../screens/SaunaScreen';
+import BookSaunaScreen from '../screens/BookSaunaScreen';
 
 const HomeStack = createStackNavigator({
   Home: HomeScreen,
@@ -28,6 +29,7 @@ HomeStack.navigationOptions = {
 
 const SaunaStack = createStackNavigator({
   Sauna: SaunaScreen,
+  BookSauna: BookSaunaScreen
 });
 
 SaunaStack.navigationOptions = {
