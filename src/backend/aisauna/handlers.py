@@ -13,6 +13,7 @@ async def book_sauna(request):
     user_id = data["user_id"]
     req_from = datetime.strptime(data["from"], '%Y-%m-%d %H:%M:%S')
     req_to = datetime.strptime(data["to"], '%Y-%m-%d %H:%M:%S')
+
     now = datetime.now().replace(second=0, microsecond=0)
     timeslot = request.app["config"]["app"]["book_timeslot"]
 
@@ -22,7 +23,10 @@ async def book_sauna(request):
         req_from.minute % timeslot != 0 or
         req_to.minute % timeslot != 0
     ):
-        return web.Response(status=400)
+        return web.json_response(
+            {"errors": {"message": "Bad ranges"}},
+            status=400
+        )
 
     search_filter = {
         "$or": [
@@ -63,10 +67,10 @@ async def get_timetable(request):
     db = request.app["db"]
 
     now = datetime.now().replace(second=0, microsecond=0)
-    search_filter = {"from": {"$gte": now}}
 
     timetable = dict()
-    async for booking in db.bookings.find(search_filter, {'_id': False}).sort('from'):
+
+    async for booking in db.bookings.find({"from": {"$gte": now}}, {'_id': False}):
         timetable[(booking["from"], booking["to"])] = booking
 
     timeslot = request.app["config"]["app"]["book_timeslot"]
@@ -81,6 +85,32 @@ async def get_timetable(request):
         dumps=json_dumps_datetime,
         status=200,
     )
+
+
+async def get_nearest_booking(request):
+    user_id = request.query.get("user_id")
+
+    if user_id is None:
+        return web.Response(status=400)
+
+    db = request.app["db"]
+    search_filter = {
+        "$and": [
+            {"user_id": {"$eq": int(user_id)}},
+            {"from": {"$gte": datetime.now()}}
+        ]
+    }
+
+    res = await db.bookings.find_one(search_filter, {'_id': False})
+
+    if res is not None:
+        return web.json_response(
+            {"booking": res},
+            status=200,
+            dumps=json_dumps_datetime
+        )
+
+    return web.json_response({"errors": {"message": "Bookings not found"}}, status=404)
 
 
 async def sauna_conditions(request):

@@ -1,5 +1,5 @@
 app:
-  book_timeslot: 30  # in minutes
+  book_timeslot: 15  # in minutes
 
 mongo:
   host: 35.228.189.190

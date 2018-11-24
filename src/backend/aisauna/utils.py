@@ -30,4 +30,3 @@ def generate_timetable(timeslot_length):
         dt_to = start_dt
 
         yield (dt_from, dt_to)
-

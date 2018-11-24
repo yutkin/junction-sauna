@@ -5,7 +5,8 @@ from aiohttp import web
 import logging
 import motor.motor_asyncio
 
-from .handlers import book_sauna, get_timetable, sauna_conditions
+from .handlers import get_timetable, get_nearest_booking, book_sauna, sauna_conditions
+
 
 uvloop.install()
 
@@ -45,9 +46,12 @@ def setup_db(app):
 
 
 def setup_routes(app: web.Application) -> None:
-    app.router.add_post("/api/book_sauna", book_sauna)
+    app.router.add_post("/api/book", book_sauna)
+
     app.router.add_get("/api/timetable", get_timetable)
     app.router.add_get("/api/conditions", sauna_conditions)
+
+    app.router.add_get("/api/book", get_nearest_booking)
 
 
 async def create_app(config_path: str) -> web.Application:
