@@ -128,7 +128,10 @@ export default class SaunaView extends React.Component {
 
       <View style={styles.container}>
         <TableView
-          style={{ width: '100%', flex: 1 }}
+          style={{
+            width: '100%',
+            flex: 1
+          }}
           tableViewStyle={TableView.Consts.Style.Grouped}
           tableViewCellStyle={TableView.Consts.CellStyle.Value1}
         >
@@ -221,6 +224,44 @@ export default class SaunaView extends React.Component {
               </TableView.Cell>
             </TableView.Section>
           )}
+
+          <TableView.Footer>
+            <View style={{
+              paddingHorizontal: 32
+            }}>
+              <Text style={{textAlign: 'center', color: '#696969'}}>
+                That’s very nice conditions for you to take the sauna following to your past expirience
+              </Text>
+            </View>
+
+            <View style={{
+              marginTop: 50,
+              paddingHorizontal: 32
+            }}>
+              {!Boolean(this.state.booking) && (
+                <Button
+                  text="Book sauna"
+                  style={styles.btn}
+                  onPress={() => this.props.navigation.navigate('BookSauna')}
+                />
+              )}
+
+              {Boolean(this.state.booking) && (
+                <React.Fragment>
+                  <View style={{flex: 1, justifyContent: 'center'}}>
+                    <Text style={{color: '#696969', fontSize: 14}}>
+                      You have booking from {bookingFrom.format('hh:mm')} to {bookingTo.format('hh:mm')}
+                    </Text>
+                  </View>
+                  <Button
+                    text="Cancel booking"
+                    style={styles.btn}
+                    onPress={() => this.cancelBooking()}
+                  />
+                </React.Fragment>
+              )}
+            </View>
+          </TableView.Footer>
         </TableView>
       </View>
     );
@@ -233,9 +274,10 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'flex-start',
     alignItems: 'center',
+    marginTop: 16
   },
   btn: {
-    marginTop: 25
+    width: '100%'
   },
 
   imageContainer: {
