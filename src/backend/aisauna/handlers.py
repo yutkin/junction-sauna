@@ -1,5 +1,6 @@
 import logging
 from datetime import datetime
+import json
 
 from aiohttp import web
 from .utils import json_dumps_datetime, generate_timetable, get_sensors_readings
@@ -119,7 +120,15 @@ async def get_user_booking(request):
 
 
 async def sauna_conditions(request):
-    sensors_readings = await get_sensors_readings()
+
+    cached = await request.app["redis"].execute('get', 'sensors')
+
+    if cached:
+        sensors_readings = json.loads(str(cached, encoding="utf-8"))
+    else:
+        sensors_readings = await get_sensors_readings()
+        await request.app["redis"].execute('set', 'sensors', json.dumps(sensors_readings))
+        await request.app["redis"].execute('expire', 'sensors', 5 * 60)
 
     T = int(await request.app["redis"].execute('get', 'T'))
     H = int(await request.app["redis"].execute('get', 'H'))
