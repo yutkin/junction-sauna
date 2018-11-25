@@ -16,12 +16,16 @@ export default class SaunaView extends React.Component {
   }
 
   componentDidMount() {
+    this.getBooking();
     this.getConditions();
   }
 
-  componentDidUpdate() {
+  componentWillUpdate(nextProps) {
     const {navigation} = this.props;
     if (navigation.state.params && navigation.state.params.refresh) {
+      if (nextProps.navigation.state.params.refresh === navigation.state.params.refresh) {
+        return;
+      }
       this.getBooking();
       this.getConditions();
     }
@@ -70,62 +74,6 @@ export default class SaunaView extends React.Component {
     }
 
     return (
-      // <View style={styles.container}>
-      //   <View style={styles.imageContainer}>
-      //     <Image
-      //       source={require('../assets/images/sauna.png')}
-      //       resizeMode="contain"
-      //       style={styles.image}
-      //     />
-      //   </View>
-
-      //   <View style={styles.info}>
-      //     <Text style={styles.infoTextHeading}>Sauna in our house</Text>
-      //     <Text style={styles.infoText}>Yörlikkurli, 26</Text>
-      //     <Text style={styles.infoTextHeading}>Current conditions</Text>
-      //   </View>
-
-      //   {Boolean(conditions) && (
-      //     <View style={styles.sensorData}>
-      //       <View style={conditions.temperature_ok ? styles.sensorDataCircle : styles.sensorDataCircleRed}>
-      //         <View style={styles.sensorDataCircleInner}>
-      //           <Text style={styles.sensorDataCircleH1}>{Math.round(conditions['Temperature'])}°C</Text>
-      //           <Text style={styles.sensorDataCircleH2}>Temperature</Text>
-      //         </View>
-      //       </View>
-      //       <View style={conditions.temperature_ok ? styles.sensorDataCircle : styles.sensorDataCircleRed}>
-      //         <View style={styles.sensorDataCircleInner}>
-      //           <Text style={styles.sensorDataCircleH1}>{Math.round(conditions['Relative humidity'])}%</Text>
-      //           <Text style={styles.sensorDataCircleH2}>Humidity</Text>
-      //         </View>
-      //       </View>
-      //     </View>
-      //   )}
-
-      //   {!Boolean(this.state.booking) && (
-      //     <Button
-      //       text="Book sauna"
-      //       style={styles.btn}
-      //       onPress={() => this.props.navigation.navigate('BookSauna')}
-      //     />
-      //   )}
-
-      //   {Boolean(this.state.booking) && (
-      //     <React.Fragment>
-      //       <View style={{flex: 1, justifyContent: 'center', marginTop: 25}}>
-      //         <Text style={{color: '#696969', fontSize: 14}}>
-      //           You have booking from {bookingFrom.format('hh:mm')} to {bookingTo.format('hh:mm')}
-      //         </Text>
-      //       </View>
-      //       <Button
-      //         text="Cancel booking"
-      //         style={styles.btn}
-      //         onPress={() => this.cancelBooking()}
-      //       />
-      //     </React.Fragment>
-      //   )}
-      // </View>
-
       <View style={styles.container}>
         <TableView
           style={{
@@ -226,13 +174,15 @@ export default class SaunaView extends React.Component {
           )}
 
           <TableView.Footer>
-            <View style={{
-              paddingHorizontal: 32
-            }}>
-              <Text style={{textAlign: 'center', color: '#696969'}}>
-                That’s very nice conditions for you to take the sauna following to your past expirience
-              </Text>
-            </View>
+            {!Boolean(this.state.booking) && (
+              <View style={{
+                paddingHorizontal: 32
+              }}>
+                <Text style={{textAlign: 'center', color: '#696969'}}>
+                  That’s very nice conditions for you to take the sauna following to your past expirience
+                </Text>
+              </View>
+            )}
 
             <View style={{
               marginTop: 50,

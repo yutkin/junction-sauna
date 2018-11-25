@@ -28,7 +28,7 @@ export default class BookSaunaView extends React.Component {
       .hours(time.hours())
       .minutes(time.minutes())
       .seconds(0)
-      .format('Y-M-D hh:mm:ss');
+      .format('Y-M-D HH:mm:ss');
   }
 
   getDateTo() {
@@ -37,7 +37,7 @@ export default class BookSaunaView extends React.Component {
       .hours(time.hours())
       .minutes(time.minutes())
       .seconds(0)
-      .format('Y-M-D hh:mm:ss');
+      .format('Y-M-D HH:mm:ss');
   }
 
   async bookSauna() {
