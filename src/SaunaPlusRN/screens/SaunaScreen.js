@@ -13,17 +13,14 @@ export default class SaunaScreen extends React.Component {
 
   render() {
     return (
-      <ScrollView style={styles.container}>
-        <SaunaView {...this.props} />
-      </ScrollView>
+      <SaunaView {...this.props} />
     );
   }
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingTop: 15,
-    backgroundColor: '#fff',
-  },
-});
+// const styles = StyleSheet.create({
+//   container: {
+//     flex: 1,
+//     marginTop: 16,
+//   },
+// });

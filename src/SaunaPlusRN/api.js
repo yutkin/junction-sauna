@@ -37,3 +37,7 @@ export function getBookedSlots() {
 export function getLatestBooking() {
   return fetchAPIMethod(`/book?user_id=${uniqueID}`, 'GET');
 }
+
+export function getConditions() {
+  return fetchAPIMethod(`/conditions`, 'GET');
+}
