@@ -1,6 +1,12 @@
 version: "3"
 
 services:
+  redis-master:
+    image: redis:alpine
+    networks:
+      - front
+    restart: always
+
   aiohttp:
     build: ./src/backend
     command: supervisord -c /app/etc/supervisord.ini
@@ -13,7 +19,8 @@ services:
     volumes:
      - aiohttp-sockets:/var/lib/aiohttp
     restart: always
-
+    depends_on:
+      - redis-master
 
   nginx:
     build: ./src/backend/etc/nginx
