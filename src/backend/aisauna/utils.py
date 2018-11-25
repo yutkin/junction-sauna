@@ -53,7 +53,6 @@ async def get_sensors_readings():
             resp.raise_for_status()
 
             data = await resp.json()
-            logger.debug(data[0])
 
             for measure in data:
                 for key in keys:

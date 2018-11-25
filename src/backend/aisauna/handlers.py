@@ -123,6 +123,8 @@ async def sauna_conditions(request):
 
     T, H = request.app.get("T"), request.app.get("H")
 
+    logger.debug(f"Temp: {T}, Humd: {H}")
+
     if (
         sensors_readings["Temperature"] < T
         and sensors_readings["Relative humidity"] < H
