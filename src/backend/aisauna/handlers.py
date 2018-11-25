@@ -142,15 +142,25 @@ async def get_user_booking(request):
 async def sauna_conditions(request):
     sensors_readings = await get_sensors_readings()
 
-    if sensors_readings["Temperature"] < 120 and sensors_readings["Relative humidity"] < 20:
+    T, H = request.app["thresholds"]["T"], request.app["thresholds"]["H"]
+
+    if sensors_readings["Temperature"] < T and sensors_readings["Relative humidity"] < H:
         sensors_readings["conditions"] = "safe"
     else:
         sensors_readings["conditions"] = "dangerous"
 
-    sensors_readings["temperature_ok"] = bool(
-        50 < sensors_readings["Temperature"] < 120
-
-    )
-    sensors_readings["humidity_ok"] = bool(sensors_readings["Relative humidity"] < 20)
+    sensors_readings["temperature_ok"] = bool(sensors_readings["Temperature"] < T)
+    sensors_readings["humidity_ok"] = bool(sensors_readings["Relative humidity"] < H)
 
     return web.json_response(sensors_readings, status=200)
+
+
+async def set_tresholds(request):
+    data = await request.json()
+
+    new_T, new_H = data["T"], data["H"]
+
+    request.app["thresholds"]["T"] = new_T
+    request.app["thresholds"]["H"] = new_H
+
+    return web.json_response({"result": "ok"}, status=200)
