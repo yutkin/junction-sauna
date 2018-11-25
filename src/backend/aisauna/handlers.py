@@ -20,9 +20,7 @@ async def book_sauna(request):
 
     if (
         req_from >= req_to or
-        req_from < now or
-        req_from.minute % timeslot != 0 or
-        req_to.minute % timeslot != 0
+        req_from < now
     ):
         return web.json_response(
             {"errors": {"message": "Bad ranges"}},
@@ -149,7 +147,10 @@ async def sauna_conditions(request):
     else:
         sensors_readings["conditions"] = "dangerous"
 
-    sensors_readings["temperature_ok"] = bool(sensors_readings["Temperature"] < 120)
+    sensors_readings["temperature_ok"] = bool(
+        50 < sensors_readings["Temperature"] < 120
+
+    )
     sensors_readings["humidity_ok"] = bool(sensors_readings["Relative humidity"] < 20)
 
     return web.json_response(sensors_readings, status=200)
