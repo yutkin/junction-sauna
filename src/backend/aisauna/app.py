@@ -75,7 +75,8 @@ async def create_app(config_path: str) -> web.Application:
     setup_db(app)
     setup_routes(app)
 
-    app["thresholds"] = {"T": 120, "H": 20}
+    app["T"] = 120
+    app["H"] = 20
 
     return app
 
