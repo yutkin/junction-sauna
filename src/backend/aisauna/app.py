@@ -3,6 +3,7 @@ import uvloop
 import yaml
 from aiohttp import web
 import logging
+import aioredis
 import motor.motor_asyncio
 
 from .handlers import (
@@ -77,6 +78,11 @@ async def create_app(config_path: str) -> web.Application:
 
     app["T"] = 120
     app["H"] = 20
+
+    app["redis"] = await aioredis.create_connection('redis://redis-master')
+
+    await app["redis"].execute('set', 'T', 120)
+    await app["redis"].execute('set', 'H', 20)
 
     return app
 
