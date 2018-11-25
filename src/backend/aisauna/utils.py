@@ -43,11 +43,7 @@ def generate_timetable(timeslot_length):
 
 
 async def get_sensors_readings():
-    keys = (
-        "Relative humidity",
-        "Temperature",
-        "Enthalpy",
-    )
+    keys = ("Relative humidity", "Temperature", "Enthalpy")
 
     res = defaultdict(list)
 

@@ -6,8 +6,13 @@ import logging
 import motor.motor_asyncio
 
 from .handlers import (
-    get_timetable, get_user_booking, book_sauna, sauna_conditions, get_booked_slots,
-    cancel_booking, set_tresholds
+    get_timetable,
+    get_user_booking,
+    book_sauna,
+    sauna_conditions,
+    get_booked_slots,
+    cancel_booking,
+    set_tresholds,
 )
 
 
@@ -80,9 +85,7 @@ async def create_app(config_path: str) -> web.Application:
 @click.option("--port", default=8080)
 @click.option("--socket_path", default=None)
 def start_app(config, port, socket_path) -> None:
-    web.run_app(
-        create_app(config), host="0.0.0.0", port=port, path=socket_path
-    )
+    web.run_app(create_app(config), host="0.0.0.0", port=port, path=socket_path)
 
 
 if __name__ == "__main__":

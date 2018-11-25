@@ -12,53 +12,37 @@ async def book_sauna(request):
 
     user_id = data["user_id"]
     allow_joins = data.get("allow_joins", False)
-    req_from = datetime.strptime(data["from"], '%Y-%m-%d %H:%M:%S')
-    req_to = datetime.strptime(data["to"], '%Y-%m-%d %H:%M:%S')
+    req_from = datetime.strptime(data["from"], "%Y-%m-%d %H:%M:%S")
+    req_to = datetime.strptime(data["to"], "%Y-%m-%d %H:%M:%S")
 
     now = datetime.now().replace(second=0, microsecond=0)
     timeslot = request.app["config"]["app"]["book_timeslot"]
 
-    if (
-        req_from >= req_to or
-        req_from < now
-    ):
-        return web.json_response(
-            {"errors": {"message": "Bad ranges"}},
-            status=400,
-        )
+    if req_from >= req_to or req_from < now:
+        return web.json_response({"errors": {"message": "Bad ranges"}}, status=400)
 
     search_filter = {
         "$or": [
             {"from": {"$gte": req_from, "$lte": req_to}},
             {"to": {"$gte": req_from, "$lte": req_to}},
-            {
-                "$and": [
-                    {"from": {"$lte": req_from}},
-                    {"to": {"$gte": req_to}}
-                ]
-            }
+            {"$and": [{"from": {"$lte": req_from}}, {"to": {"$gte": req_to}}]},
         ]
     }
 
     booked_already = []
     db = request.app["db"]
 
-    async for doc in db.bookings.find(search_filter, {'_id': False}):
+    async for doc in db.bookings.find(search_filter, {"_id": False}):
         booked_already.append(doc)
 
     if booked_already:
         return web.json_response(
-            {"booked_periods": booked_already},
-            status=409,
-            dumps=json_dumps_datetime,
+            {"booked_periods": booked_already}, status=409, dumps=json_dumps_datetime
         )
 
-    await db.bookings.insert_one({
-        "user_id": user_id,
-        "from": req_from,
-        "to": req_to,
-        "allow_joins": allow_joins,
-    })
+    await db.bookings.insert_one(
+        {"user_id": user_id, "from": req_from, "to": req_to, "allow_joins": allow_joins}
+    )
 
     return web.json_response({"result": "ok"}, status=200)
 
@@ -79,7 +63,7 @@ async def get_timetable(request):
 
     timetable = dict()
 
-    async for booking in db.bookings.find({"from": {"$gte": now}}, {'_id': False}):
+    async for booking in db.bookings.find({"from": {"$gte": now}}, {"_id": False}):
         timetable[(booking["from"], booking["to"])] = booking
 
     timeslot = request.app["config"]["app"]["book_timeslot"]
@@ -101,13 +85,13 @@ async def get_booked_slots(request):
     now = datetime.now()
 
     res = []
-    async for booking in db.bookings.find(
-            {"from": {"$gte": now}}, {'_id': False}
-    ).sort("from"):
+    async for booking in db.bookings.find({"from": {"$gte": now}}, {"_id": False}).sort(
+        "from"
+    ):
         res.append(booking)
 
     return web.json_response(
-        {"booked_slots": res}, status=200, dumps=json_dumps_datetime,
+        {"booked_slots": res}, status=200, dumps=json_dumps_datetime
     )
 
 
@@ -121,19 +105,14 @@ async def get_user_booking(request):
 
     db = request.app["db"]
     search_filter = {
-        "$and": [
-            {"user_id": {"$eq": user_id}},
-            {"from": {"$gte": datetime.now()}}
-        ]
+        "$and": [{"user_id": {"$eq": user_id}}, {"from": {"$gte": datetime.now()}}]
     }
 
-    res = await db.bookings.find_one(search_filter, {'_id': False})
+    res = await db.bookings.find_one(search_filter, {"_id": False})
 
     if res is not None:
         return web.json_response(
-            {"booking": res},
-            status=200,
-            dumps=json_dumps_datetime
+            {"booking": res}, status=200, dumps=json_dumps_datetime
         )
 
     return web.json_response({"errors": {"message": "Bookings not found"}}, status=404)
@@ -144,7 +123,10 @@ async def sauna_conditions(request):
 
     T, H = request.app["thresholds"]["T"], request.app["thresholds"]["H"]
 
-    if sensors_readings["Temperature"] < T and sensors_readings["Relative humidity"] < H:
+    if (
+        sensors_readings["Temperature"] < T
+        and sensors_readings["Relative humidity"] < H
+    ):
         sensors_readings["conditions"] = "safe"
     else:
         sensors_readings["conditions"] = "dangerous"
